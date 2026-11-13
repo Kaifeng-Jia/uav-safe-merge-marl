@@ -305,7 +305,7 @@ class SubprocVecEnv(ShareVecEnv):
             remote.send(('render', mode))
         if mode == "rgb_array":   
             frame = [remote.recv() for remote in self.remotes]
-            return np.stack(frame) 
+            return np.stack(frame)
 
 
 def shareworker(remote, parent_remote, env_fn_wrapper):
@@ -933,7 +933,7 @@ class GraphDummyVecEnv(ShareVecEnv):
                     obs[i], ag_ids[i], node_obs[i], adj[i] = self.envs[i].reset()
 
         self.actions = None
-        return obs, ag_ids, node_obs, adj, rews, dones, infos, reset_count
+        return obs, ag_ids, node_obs, adj, rews, dones, infos
         ### for prisoners dilemma
         ### return obs, ag_ids, node_obs, adj, rews,cooperate, defect, dones, infos
 
@@ -1034,4 +1034,4 @@ class GraphSubprocVecEnv(ShareVecEnv):
             remote.send(('render', mode))
         if mode == "rgb_array":   
             frame = [remote.recv() for remote in self.remotes]
-            return np.stack(frame) 
+            return np.stack(frame)

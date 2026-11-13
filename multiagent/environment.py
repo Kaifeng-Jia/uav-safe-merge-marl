@@ -1163,6 +1163,43 @@ class MultiAgentGraphEnv(MultiAgentBaseEnv):
 
 # vectorized wrapper for a batch of multi-agent environments
 # assumes all environments have the same observation and action space
+class P0P1GraphEnv(MultiAgentGraphEnv):
+    """Hold a MIT policy action over ten 0.1-second physical substeps."""
+
+    def _set_action(self, action, agent, action_space, time=None):
+        if getattr(agent, "dormant", False):
+            agent.action.u = np.zeros(2)
+            agent.action.c = np.zeros(self.world.dim_c)
+            return
+        super()._set_action(action, agent, action_space, time)
+        index = int(np.argmax(np.asarray(action)))
+        agent.action.u = np.asarray(agent.envelope.primitive(index), dtype=float)
+
+    def _get_done(self, agent, count=None):
+        if self.current_step >= self.world_length or self.world.simulation_time >= self.world.scenario.tmax:
+            return True
+        return bool(agent.status and not getattr(agent, "dormant", False))
+
+    def step(self, action_n):
+        original_step = self.world.step
+        world = self.world
+        scenario = world.scenario
+
+        def physical_substeps():
+            for _ in range(10):
+                scenario.launch_due(world)
+                before = {agent.id: agent.state.p_pos.copy() for agent in world.agents if not agent.status}
+                original_step()
+                after = {agent.id: agent.state.p_pos.copy() for agent in world.agents if not agent.status}
+                scenario.metrics.sample(before, after)
+
+        world.step = physical_substeps
+        try:
+            return super().step(action_n)
+        finally:
+            world.step = original_step
+
+
 class BatchMultiAgentEnv(gym.Env):
 	metadata = {
 		'runtime.vectorized': True,

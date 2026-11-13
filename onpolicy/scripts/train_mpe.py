@@ -158,7 +158,7 @@ def main(args):
     if all_args.use_wandb:
 
         # for supercloud when no internet_connection
-        if not connected_to_internet():
+        if all_args.scenario_name != "p0p1_merge_graph" and not connected_to_internet():
             import json
             # save a json file with your wandb api key in your 
             # home folder as {'my_wandb_api_key': 'INSERT API HERE'}
@@ -175,16 +175,17 @@ def main(args):
         run = wandb.init(config=all_args,
                         project=all_args.project_name,
                         # project=all_args.env_name,
-                        entity=all_args.user_name,
+                        entity=(None if all_args.user_name == 'marl' else all_args.user_name),
                         notes=socket.gethostname(),
                         name= str(all_args.experiment_name) +
                         "_seed" + str(all_args.seed),
                         # group=all_args.scenario_name,
                         dir=str(run_dir),
-                        save_code=True,
+                        save_code=all_args.scenario_name != "p0p1_merge_graph",
                         # job_type="training",
                         reinit=True)
-        wandb.run.log_code(".")  # save code
+        if all_args.scenario_name != "p0p1_merge_graph":
+            wandb.run.log_code(".")  # legacy MIT runs archive their code
     else:
         if not run_dir.exists():
             curr_run = 'run1'
@@ -225,7 +226,7 @@ def main(args):
     }
     
     if all_args.use_wandb:
-        config_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'multiagent', 'config.py'))
+        config_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'config.py'))
         wandb.save(config_file_path, policy='now')
 
     # run experiments

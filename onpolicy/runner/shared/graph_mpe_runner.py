@@ -222,6 +222,10 @@ class GMPERunner(Runner):
 		self.buffer.adj[0] = adj.copy()
 		self.buffer.agent_id[0] = agent_id.copy()
 		self.buffer.share_agent_id[0] = share_agent_id.copy()
+		if self.all_args.scenario_name == "p0p1_merge_graph":
+			# Every task is dormant immediately after reset.
+			self.buffer.active_masks[0] = 0.0
+			self.buffer.masks[0] = 0.0
 
 
 	def get_finished(self,dones):
@@ -391,6 +395,14 @@ class GMPERunner(Runner):
 		active_masks[dones] = np.zeros((((dones).astype(int)).sum(), 1), dtype=np.float32)
 		active_masks[dones_env] = np.ones((((dones_env).astype(int)).sum(), 
 								self.num_agents, 1), dtype=np.float32)
+		if self.all_args.scenario_name == "p0p1_merge_graph":
+			# Dormant tasks remain in fixed-size tensors but must contribute
+			# neither policy/value loss nor a recurrent history before takeoff.
+			for env_index, env_infos in enumerate(infos):
+				for agent_index, agent_info in enumerate(env_infos):
+					if not agent_info["p0p1_active"]:
+						active_masks[env_index, agent_index, 0] = 0.0
+						masks[env_index, agent_index, 0] = 0.0
 
 
 		# if centralized critic, then shared_obs is concatenation of obs from all agents

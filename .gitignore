@@ -52,6 +52,8 @@ hj_reachability_utils/
 
 # ignoring hanabi and starcraft related files after pushing them to the repo
 onpolicy/results
+experiments/p0_p1/runs/
+experiments/p0_p1/smoke_*.json
 onpolicy/scripts/results/
 onpolicy/envs/hanabi/
 onpolicy/envs/starcraft2/
@@ -162,6 +164,13 @@ celerybeat.pid
 
 # Environments
 .env
+.env.*
+!.env.example
+.netrc
+*.pem
+*.key
+*.tar.gz
+*.zip
 .venv
 env/
 venv/

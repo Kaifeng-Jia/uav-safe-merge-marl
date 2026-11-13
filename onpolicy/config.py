@@ -421,6 +421,13 @@ def get_config():
     parser.add_argument("--heterogeneous_speeds", action='store_true', default=False,
                         help="Flag to indicate heterogeneous speed configuration. "
                         "Adds 'heterogeneous' to output filenames for easy identification.")
+    parser.add_argument("--p0p1_fleet", choices=["H-M", "MIX"], default="H-M")
+    parser.add_argument("--p0p1_headway", type=float, default=None,
+                        help="Fixed evaluation headway in seconds; omit for log-uniform training loads")
+    parser.add_argument("--p0p1_map_module", type=str, default=None,
+                        help="Optional importable map module exporting install_map(scenario, world)")
+    parser.add_argument("--p0p1_scene_seed", type=int, default=None,
+                        help="Fixed paired validation/test scenario seed; omit for training")
 
     # misc parameters
     parser.add_argument("--verbose", action='store_false', default=True,

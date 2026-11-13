@@ -63,7 +63,9 @@ def GraphMPEEnv(args):
     scenario = load(args.scenario_name + ".py").Scenario()
     # create world
     world = scenario.make_world(args=args)
-    from multiagent.environment import MultiAgentGraphEnv
+    from multiagent.environment import MultiAgentGraphEnv, P0P1GraphEnv
+    if args.scenario_name == "p0p1_merge_graph":
+        MultiAgentGraphEnv = P0P1GraphEnv
     # create multiagent environment
     env = MultiAgentGraphEnv(world=world, reset_callback=scenario.reset_world,
                         reward_callback=scenario.reward, 
@@ -204,4 +206,3 @@ def make_parallel_env(args:argparse.Namespace):
         return DummyVecEnv([get_env_fn(0)])
     else:
         return SubprocVecEnv([get_env_fn(i) for i in range(args.n_rollout_threads)])
-

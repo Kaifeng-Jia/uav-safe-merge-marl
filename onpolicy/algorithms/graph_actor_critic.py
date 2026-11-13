@@ -134,6 +134,11 @@ class GR_Actor(nn.Module):
         obs = check(obs).to(**self.tpdv)
         # print("obs",obs.shape, obs)
         node_obs = check(node_obs).to(**self.tpdv)
+        if node_obs.shape[-1] == 13:
+            # P0/P1: [MIT public(6), capacity(5), availability(1), type(1)].
+            # Keep the full tensor for the critic, which has its own encoder.
+            node_obs = node_obs.clone()
+            node_obs[..., 6:11] *= node_obs[..., 11:12]
         # print("node obs", node_obs.shape,node_obs)
         adj = check(adj).to(**self.tpdv)
         agent_id = check(agent_id).to(**self.tpdv).long()
@@ -212,6 +217,9 @@ class GR_Actor(nn.Module):
         """
         obs = check(obs).to(**self.tpdv)
         node_obs = check(node_obs).to(**self.tpdv)
+        if node_obs.shape[-1] == 13:
+            node_obs = node_obs.clone()
+            node_obs[..., 6:11] *= node_obs[..., 11:12]
         adj = check(adj).to(**self.tpdv)
         agent_id = check(agent_id).to(**self.tpdv)
         rnn_states = check(rnn_states).to(**self.tpdv)

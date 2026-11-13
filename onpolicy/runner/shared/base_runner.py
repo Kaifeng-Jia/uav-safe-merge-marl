@@ -331,6 +331,19 @@ class Runner(object):
 			env_infos[spacing_violations] = spacing_violations_list
 			env_infos[phase_reached] = phase_reached_list
 			# print("CONFORMANCE", conformance_percentages_list)
+		if self.all_args.scenario_name == "p0p1_merge_graph":
+			# These are snapshots at the logging update, averaged over rollout envs.
+			# Final fixed-scene metrics are computed separately by evaluate.py.
+			for key, name in (("p0p1_active", "active_fraction"),
+			                  ("p0p1_departed", "departed_fraction"),
+			                  ("p0p1_arrived", "arrived_fraction"),
+			                  ("p0p1_on_time", "on_time_fraction")):
+				env_infos[f"p0p1/{name}"] = [float(np.mean([agent[key] for agent in scene]))
+				                                for scene in infos]
+			for key, name in (("p0p1_I_percent", "I_percent"),
+			                  ("p0p1_N_col", "N_col"),
+			                  ("p0p1_tmax_truncated", "tmax_truncated")):
+				env_infos[f"p0p1/{name}"] = [float(scene[0][key]) for scene in infos]
 		return env_infos
 
 	def log_train(self, train_infos:Dict, total_num_steps:int):
